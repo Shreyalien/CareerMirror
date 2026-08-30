@@ -1,86 +1,97 @@
-<div align="center">
-
 # CareerMirror
 
-**Turn your CV into signal, not guesswork.**
+CV analysis platform that gives you feedback the way an actual recruiter would — not a generic ATS keyword scanner. Upload a resume or paste the text, pick a persona, choose your tone, and get back skill-fit, career-fit, and CV health scores with a full breakdown.
 
-Upload a resume, pick who's reading it, and get back the kind of feedback a recruiter would give you in a hallway — not a generic checklist.
-
-[![status](https://img.shields.io/badge/status-live-2563eb?style=flat-square)](https://careermirror-backend.onrender.com/)
 [![React](https://img.shields.io/badge/React-18-2563eb?style=flat-square)](https://react.dev)
-[![Node](https://img.shields.io/badge/Node.js-Express-2563eb?style=flat-square)](https://expressjs.com)
-[![License](https://img.shields.io/badge/license-MIT-2563eb?style=flat-square)](#license)
+[![Node.js](https://img.shields.io/badge/Node.js-Express-2563eb?style=flat-square)](https://expressjs.com)
+[![Tailwind](https://img.shields.io/badge/Tailwind-CSS-2563eb?style=flat-square)](https://tailwindcss.com)
+[![Author](https://img.shields.io/badge/Author-Shreyalien%20(Shreya)-8B7BFF?style=flat-square&logo=github)](https://github.com/Shreyalien)
 
-### [🔗 Live Demo](https://careermirror-backend.onrender.com/)
-
-</div>
-
----
-
-## What it does
-
-Most resume checkers count keywords and call it a day. CareerMirror tries to actually *read* your CV the way a human reviewer would — through the lens of a persona you pick — and hands back three things:
-
-- **Skill-fit** — how well your listed skills line up with the role you're targeting
-- **Career-fit** — whether your trajectory reads as coherent or scattered
-- **CV health** — the structural stuff: formatting, gaps, clarity, length
-
-You choose the tone: **Coach mode** gives constructive, encouraging feedback. **Roast mode** doesn't hold back — useful when you want the version a tired recruiter would actually think, not the polite version.
-
-If an Anthropic API key is configured, analysis runs on Claude. If not, a local rule-based engine takes over automatically — no external calls required to use the app.
+### [Live Demo](https://careermirror-0rwk.onrender.com/)
 
 ---
 
-## How it's built
+## Author & Credits
 
-| Layer | Choices |
+Created and maintained by **[Shreyalien (Shreya)](https://github.com/Shreyalien)**.
+
+---
+
+## Overview
+
+Most resume tools stop at keyword matching. CareerMirror goes further — it evaluates structure, clarity, and how well your experience actually maps to a target role, then delivers that as feedback shaped by a persona and a tone you choose.
+
+Two modes:
+
+| Mode | What you get |
 |---|---|
-| Frontend | React 18, Vite, Tailwind, Framer Motion for the motion layer, Recharts for the fit/health visuals |
-| Backend | Node.js + Express, plain REST |
-| CV parsing | PDF.js and Mammoth in-browser for instant preview; pdf-parse server-side for the actual extraction |
-| Analysis | Anthropic API when a key is present, deterministic heuristics engine otherwise |
+| **Coach** | Constructive, structured feedback — what's working, what to fix, and how |
+| **Roast** | Blunt, no-cushion feedback — closer to what a recruiter actually thinks after a 6-second skim |
 
-The split matters: parsing happens twice on purpose — once client-side for a fast preview, once server-side as the source of truth for analysis.
+## Features
 
----
+- **Persona-based review** — feedback framed from the perspective of a specific type of recruiter/hiring manager
+- **Real-Time ATS Score Checker** — weighted scoring across Impact, Action Verbs, ATS Structure, and Keyword coverage
+- **Split-Pane Live CV Editor & 1-Click Auto-Fixer** — edit live, upgrade passive phrases to power verbs, purge buzzwords, and standardize headers
+- **Dream Job Skill Gap Suggestion Box & ATS Booster** — custom dream job benchmarks, missing skills diagnosis, project blueprints, and 1-click CV skill injection
+- **Job Matches & Where to Apply Navigator** — matching role titles with market salaries and 1-click direct search links across LinkedIn, Wellfound, Indeed, and RemoteOK
+- **Skill-fit scoring** — compares extracted skills against a target role's expected skill set
+- **Career-fit scoring** — flags inconsistent trajectory, unexplained gaps, mismatched seniority signals
+- **CV health score** — formatting, length, structure, and clarity checks independent of role
+- **Dual input** — upload a PDF/DOCX directly or paste raw text
+- **Visual breakdown** — score charts and category breakdowns via Recharts, not just a wall of text
+- **Works with or without an API key** — falls back to a deterministic local scoring engine when no key is set, so the app is never fully dependent on an external service
 
-## Project layout
+## Tech stack
+
+| Layer | Tools |
+|---|---|
+| Frontend | React 18, Vite, Tailwind CSS, Framer Motion, Recharts, Lucide Icons |
+| Backend | Node.js, Express |
+| CV parsing | PDF.js / Mammoth (client-side preview), pdf-parse (server-side, source of truth) |
+| Analysis engine | Claude API (when configured) with a rule-based fallback (`heuristics.js`) |
+
+The parsing is intentionally duplicated — client-side gives an instant preview, server-side is what actually gets analyzed, so the two never need to trust each other's output.
+
+## Project structure
 
 ```
 careermirror/
-├── frontend/          React + Vite app
+├── frontend/
 │   ├── src/
+│   │   ├── components/
+│   │   ├── data/
+│   │   ├── App.jsx
+│   │   └── main.jsx
 │   └── public/
 ├── backend/
-│   ├── server.js       Express entrypoint
-│   ├── heuristics.js    fallback analysis engine
-│   └── skillsMap.js     skill taxonomy used by both engines
+│   ├── server.js       Express app + routes
+│   ├── heuristics.js    fallback scoring engine
+│   └── skillsMap.js     skill taxonomy used by the scoring logic
 └── .gitignore
 ```
 
----
+## Running locally
 
-## Getting it running
-
-**Backend**
+### Backend
 
 ```bash
 cd backend
 npm install
-cp .env.example .env    # add your own values, see note below
+cp .env.example .env
 npm start
 ```
 
-`.env` needs:
+`.env`:
 
 ```env
-ANTHROPIC_API_KEY=   # optional — leave blank to use the local engine
+ANTHROPIC_API_KEY=   # optional — leave empty to run on the local engine
 PORT=5000
 ```
 
-Sanity check: `http://localhost:5000/api/health` should respond.
+Confirm it's up: `http://localhost:5000/api/health`
 
-**Frontend**
+### Frontend
 
 ```bash
 cd frontend
@@ -88,45 +99,36 @@ npm install
 npm run dev
 ```
 
-Runs at `http://localhost:5173` by default, pointed at the backend via:
+Serves on `http://localhost:5173`, pointing at the backend via:
 
 ```env
 VITE_API_URL=http://localhost:5000
 ```
 
-> **On `.env.example` files:** committing one is fine and expected — it should only ever hold placeholder keys or blank values, never real secrets. The actual `.env` (with your real API key) stays out of git via `.gitignore`. If you ever *did* commit a real key by mistake, rotating it on Anthropic's console is the fix, not just removing the file — git history still holds it.
+## Deployment
 
----
+Two Render services from the same repo.
 
-## Deploying
-
-Two independent services, same repo:
-
-**Backend** — Web Service
+**Backend — Web Service**
 - Root: `backend`
 - Build: `npm install`
 - Start: `npm start`
 - Env: `ANTHROPIC_API_KEY`
 
-**Frontend** — Static Site
+**Frontend — Static Site**
 - Root: `frontend`
 - Build: `npm install && npm run build`
 - Publish dir: `dist`
-- Env: `VITE_API_URL` → your backend's deployed URL
+- Env: `VITE_API_URL` → backend's deployed URL
 
-Redeploy the frontend whenever `VITE_API_URL` changes — Vite bakes env vars in at build time, not runtime.
+Redeploy the frontend after changing `VITE_API_URL` — Vite bakes it in at build time, not runtime.
 
----
+## Security notes
 
-## A few things worth knowing
-
-- The Anthropic key never touches the frontend build — it's read server-side only.
-- `VITE_API_URL` is safe to expose; it's just a routing address, not a credential.
-- No key configured, no problem — the app is fully usable on the local engine alone.
-
----
+- `ANTHROPIC_API_KEY` is read server-side only and never exposed to the frontend build.
+- `VITE_API_URL` is safe to expose publicly — it's a routing address, not a credential.
+- No key configured, no problem — the local heuristics engine keeps the app fully functional.
 
 ## License
 
-MIT — use it, fork it, break it, learn from it.
-
+All rights reserved. This code is shared for viewing purposes only — not licensed for reuse, modification, or redistribution.

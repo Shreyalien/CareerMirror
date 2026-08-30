@@ -1,44 +1,50 @@
-// Lightweight rule-based "CV signal" reader. Used whenever no ANTHROPIC_API_KEY
+import { getBlueprint } from "./blueprints.js";
+import { wordMatch } from "./textMatch.js";
+
+// Lightweight rule-based "CV signal" reader. Used whenever no AI API key
 // is set, so the app still feels alive and gives varied, CV-specific answers
 // instead of one static paragraph.
 
 const ACTION_VERBS = [
-  "built", "built", "led", "designed", "developed", "created", "launched",
+  "built", "led", "designed", "developed", "created", "launched",
   "shipped", "optimized", "automated", "reduced", "increased", "improved",
   "implemented", "architected", "migrated", "deployed", "mentored", "solved",
+  "managed", "spearheaded", "resolved", "coordinated",
 ];
 
 const WEAK_PHRASES = [
   "responsible for", "worked on", "helped with", "involved in",
-  "duties included", "in charge of", "tasked with",
+  "duties included", "in charge of", "tasked with", "assisted with",
+  "participated in",
 ];
 
 const BUZZWORDS = [
   "hardworking", "team player", "passionate", "detail-oriented",
   "self-motivated", "go-getter", "hard-working", "dynamic", "synergy",
-  "fast learner", "results-driven",
+  "fast learner", "results-driven", "think outside the box",
 ];
 
 function countMatches(text, list) {
   const lower = text.toLowerCase();
-  return list.filter((w) => lower.includes(w)).length;
+  return list.filter((w) => wordMatch(lower, w)).length;
 }
 
 function findMatches(text, list) {
   const lower = text.toLowerCase();
-  return list.filter((w) => lower.includes(w));
+  return list.filter((w) => wordMatch(lower, w));
 }
 
 export function parseCvSignals(cvText) {
   const text = cvText || "";
   const words = text.trim().split(/\s+/).filter(Boolean);
-  const quantified = (text.match(/\d+(\.\d+)?\s?(%|percent|x|users|hours|days|projects|k\b)/gi) || []).length;
+  const quantified = (text.match(/\d+(\.\d+)?\s?(%|percent|x|users|hours|days|projects|k\b|\$|tickets|queries)/gi) || []).length;
   const actionVerbCount = countMatches(text, ACTION_VERBS);
   const weakPhrases = findMatches(text, WEAK_PHRASES);
   const buzzwords = findMatches(text, BUZZWORDS);
-  const hasEducation = /education|university|bsc|college|degree/i.test(text);
-  const hasProjects = /project/i.test(text);
-  const hasContact = /@|linkedin|github/i.test(text);
+  const hasEducation = /education|university|bsc|college|degree|academic/i.test(text);
+  const hasProjects = /project|portfolio|achievements/i.test(text);
+  const hasContact = /@|linkedin|github|portfolio|behance/i.test(text);
+  const hasDates = /(20\d{2})|(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*20\d{2}/i.test(text);
   const bulletCount = (text.match(/\n\s*[-•*]/g) || []).length;
 
   return {
@@ -50,6 +56,7 @@ export function parseCvSignals(cvText) {
     hasEducation,
     hasProjects,
     hasContact,
+    hasDates,
     bulletCount,
   };
 }
@@ -59,36 +66,44 @@ const PERSONA_FLAVOR = {
     coachOpeners: [
       "Alright, let's cut to what actually matters here.",
       "Here's my honest read as someone hiring fast.",
+      "No fluff, let's get into it.",
+      "Here's what jumps out at me first.",
     ],
     roastOpeners: [
       "Okay real talk, let's speed-run your weaknesses.",
       "I've got 90 seconds between meetings, so buckle up.",
+      "Let's do this fast, like everything else around here.",
+      "No time for gentle, so here's the sharp version.",
     ],
   },
   faang: {
     coachOpeners: [
       "Running this through my mental rubric — here's where you land.",
       "Let's look at signal strength across your CV.",
+      "Treating this like a structured technical screen — here's the read.",
     ],
     roastOpeners: [
       "I review 40 CVs a day. Yours gave me exactly one thing to remember.",
       "Let's talk about what's missing before we talk about what's there.",
+      "Applying the same high bar I'd apply to any candidate at scale.",
     ],
   },
   mnc: {
     coachOpeners: [
       "Thank you for submitting your profile. Here is my structured assessment.",
       "Reviewing against our standard competency framework.",
+      "Per our evaluation criteria, here's where things stand.",
     ],
     roastOpeners: [
       "I'll keep this professional, but I will not sugarcoat it.",
       "Per our internal rubric, there are some gaps to flag.",
+      "This wouldn't clear our initial screening filter, and here's why.",
     ],
   },
   agency: {
     coachOpeners: [
       "Okay, as a visual person, here's my gut reaction first.",
-      "Let's talk craft, because that's what I care about.",
+      "Let's talk craft and storytelling, because that's what I care about.",
     ],
     roastOpeners: [
       "I judge portfolios for a living, so brace yourself.",
@@ -101,7 +116,7 @@ const PERSONA_FLAVOR = {
       "I just need to trust you fast — here's how close you are.",
     ],
     roastOpeners: [
-      "Honestly? A little confusing for a non-tech person like me.",
+      "Honestly? A little confusing for a client like me.",
       "I almost closed the tab. Let me tell you why.",
     ],
   },
@@ -112,7 +127,7 @@ const PERSONA_FLAVOR = {
     ],
     roastOpeners: [
       "I need precision. This has... vibes instead of numbers.",
-      "In banking, vague is a red flag. Let's fix that.",
+      "In banking, vague claims are a red flag. Let's fix that.",
     ],
   },
   cyber: {
@@ -122,7 +137,7 @@ const PERSONA_FLAVOR = {
     ],
     roastOpeners: [
       "I'm suspicious by profession. Your CV isn't helping its case.",
-      "Zero proof of hands-on work is basically an open port.",
+      "Zero proof of hands-on work is basically an open vulnerability.",
     ],
   },
   ngo: {
@@ -131,13 +146,13 @@ const PERSONA_FLAVOR = {
       "Here's what stood out to me, human to human.",
     ],
     roastOpeners: [
-      "Gently, but honestly — this reads a bit corporate for our world.",
-      "Where's the story? I need to feel something here.",
+      "Gently, but honestly — this reads a bit corporate for our mission.",
+      "Where's the human impact story? I need to see it here.",
     ],
   },
   consultancy: {
     coachOpeners: [
-      "Structuring my feedback the way I'd structure a client deck.",
+      "Structuring my feedback the way I'd structure an executive deck.",
       "Let's MECE this CV real quick.",
     ],
     roastOpeners: [
@@ -155,25 +170,25 @@ function buildStrengthLine(signals) {
   const lines = [];
   if (signals.quantified >= 2) lines.push("you actually back things up with numbers, which is rare");
   if (signals.actionVerbCount >= 4) lines.push("your bullets start with real action verbs instead of fluff");
-  if (signals.hasProjects) lines.push("there's project work here, not just job duties");
+  if (signals.hasProjects) lines.push("there's concrete project work here, not just listed duties");
   if (signals.bulletCount >= 4) lines.push("the formatting is scannable, which recruiters silently reward");
+  if (signals.hasDates) lines.push("your career timeline is clear and easy to follow");
+  if (signals.hasContact) lines.push("you've made your contact info clear and accessible");
   return lines.length ? lines : ["there's a foundation here worth building on"];
 }
 
 function buildWeaknessLine(signals) {
   const lines = [];
-  if (signals.quantified < 2) lines.push("almost nothing is quantified — no percentages, no scale, no outcomes");
+  if (signals.quantified < 2) lines.push("almost nothing is quantified — no percentages, scale, or metrics");
   if (signals.weakPhrases.length) {
-    lines.push(
-      `phrases like "${signals.weakPhrases[0]}" describe duties, not achievements`
-    );
+    lines.push(`phrases like "${signals.weakPhrases[0]}" describe passive duties, not achievements`);
   }
   if (signals.buzzwords.length) {
     lines.push(`words like "${signals.buzzwords[0]}" are filler — anyone can claim them`);
   }
-  if (signals.wordCount < 80) lines.push("this is quite thin — there's not enough evidence to judge you fairly");
-  if (!signals.hasProjects) lines.push("no clear projects mentioned, which makes it hard to see what you can actually do");
-  return lines.length ? lines : ["it's solid but forgettable — nothing here makes you memorable"];
+  if (signals.wordCount < 80) lines.push("this is quite thin — provide more substance and evidence");
+  if (!signals.hasProjects) lines.push("no clear projects or outcomes mentioned to prove your capability");
+  return lines.length ? lines : ["it's solid but forgettable — nothing here makes you stand out yet"];
 }
 
 export function buildDemoAnalysis({ persona, mode, cvText, jobTarget, skillFit }) {
@@ -194,14 +209,14 @@ export function buildDemoAnalysis({ persona, mode, cvText, jobTarget, skillFit }
         ? `Your ${weakestField.field.toLowerCase()} signal is basically a ghost town.`
         : `There's real work left before this is interview-ready.`,
     ];
-    return `${opener}\n\n🔥 1. ${burns[0]}\n🔥 2. ${burns[1]}\n🔥 3. ${burns[2]}\n\n💀 Verdict: closer to ${
+    return `${opener}\n\n1. ${burns[0]}\n2. ${burns[1]}\n3. ${burns[2]}\n\nVerdict: closer to ${
       strongestField ? strongestField.field : "somewhere"
-    } than to ${jobTarget}. Fix the numbers problem first — it's the cheapest win you're not taking.`;
+    } than to ${jobTarget}. Fix the numbers problem first — it's the highest-leverage win you're leaving on the table.`;
   }
 
-  return `${opener}\n\n✅ 1. Keep doing this: ${strengths[0]}.\n✅ 2. Fix this next: ${weaknesses[0]}.\n✅ 3. Then this: ${
+  return `${opener}\n\n1. Strength: ${strengths[0]}.\n2. Priority Fix: ${weaknesses[0]}.\n3. Next Step: ${
     weaknesses[1] || "trim anything generic that doesn't say something specific about you"
-  }.\n\n🎯 For ${jobTarget}, you're tracking well toward ${
+  }.\n\nTarget Guidance for ${jobTarget}: You're tracking well toward ${
     strongestField ? strongestField.field : "a few directions"
   }${weakestField ? `, but ${weakestField.field.toLowerCase()} needs the most attention right now.` : "."} Start with one measurable outcome per bullet — that alone changes how this reads.`;
 }
@@ -211,6 +226,10 @@ const INTENT_KEYWORDS = {
     "why not", "reject", "not hire", "wouldn't hire", "would not hire",
     "won't hire", "why should", "why wouldn't", "unsuitable", "not fit",
     "not suitable", "hire me", "not qualified", "turn me down", "pass on me",
+  ],
+  blueprint: [
+    "how should i build", "how to build", "how do i build", "structure my cv",
+    "improve my cv for", "build my cv", "how should my cv look", "how do i write",
   ],
   strength: ["strong", "good", "best", "well", "positive", "impressive"],
   weakness: ["weak", "bad", "improve", "wrong", "fix", "lack", "missing", "gap"],
@@ -228,7 +247,6 @@ function matchIntent(question) {
 
 export function buildDemoFollowUp({ persona, mode, cvText, jobTarget, question, skillFit }) {
   const signals = parseCvSignals(cvText);
-  const flavor = PERSONA_FLAVOR[persona] || PERSONA_FLAVOR.startup;
   const intent = matchIntent(question);
   const funny = mode === "roast";
   const weakestField = skillFit && skillFit.length ? skillFit[skillFit.length - 1] : null;
@@ -253,6 +271,11 @@ export function buildDemoFollowUp({ persona, mode, cvText, jobTarget, question, 
       : `For ${jobTarget} specifically, the main risk is ${
           weakestField ? `weak signal in ${weakestField.field.toLowerCase()}` : "not enough demonstrated evidence"
         }. That's usually the deciding factor, more than tone or formatting.`;
+  } else if (intent === "blueprint") {
+    const bp = getBlueprint(jobTarget);
+    answer = funny
+      ? `Fine, cheat sheet time: lead with ${bp.lead}, flex ${bp.emphasize}, and for the love of god stop doing this — ${bp.avoid}.`
+      : `For ${jobTarget}: lead with ${bp.lead}. Emphasize ${bp.emphasize}. Avoid ${bp.avoid}.`;
   } else if (intent === "field") {
     answer = `Based on what's in your CV, you're currently strongest for ${
       strongestField ? strongestField.field : jobTarget

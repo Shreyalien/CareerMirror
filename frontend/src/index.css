@@ -5,29 +5,54 @@
 * {
   box-sizing: border-box;
 }
-body {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
 
 body {
   margin: 0;
   background: #0b0d14;
-  color: #d8dceA;
-  font-family: "Inter", sans-serif;
+  color: #d8dcea;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 7px;
+  height: 7px;
 }
+
+::-webkit-scrollbar-track {
+  background: #0b0d14;
+}
+
 ::-webkit-scrollbar-thumb {
   background: #2a2f42;
-  border-radius: 8px;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3e4663;
 }
 
 .grid-glow {
-  background-image: radial-gradient(circle at 1px 1px, rgba(139, 123, 255, 0.15) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgba(139, 123, 255, 0.12) 1px, transparent 0);
   background-size: 28px 28px;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+  }
+  header, button, nav {
+    display: none !important;
+  }
+  .bg-panel, .bg-panel2 {
+    background: #f9fafb !important;
+    border-color: #e5e7eb !important;
+    color: #111827 !important;
+  }
+  .text-cloud {
+    color: #111827 !important;
+  }
+  .text-mist {
+    color: #4b5563 !important;
+  }
 }

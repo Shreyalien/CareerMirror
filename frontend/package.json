@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "framer-motion": "^11.2.10",
+    "lucide-react": "^1.35.0",
     "mammoth": "^1.7.2",
     "pdfjs-dist": "^4.4.168",
     "react": "^18.3.1",

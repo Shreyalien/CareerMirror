@@ -1,3 +1,5 @@
+import { wordMatch } from "./textMatch.js";
+
 export const SKILL_MAP = {
   "Frontend Developer": {
     "HTML/CSS": ["html", "css", "sass", "tailwind"],
@@ -55,13 +57,79 @@ export const SKILL_MAP = {
     "App Store": ["play store", "app store", "deployment"],
     Testing: ["testing", "debugging"],
   },
+  "Graphic Designer": {
+    "Design Tools": ["photoshop", "illustrator", "canva", "figma"],
+    "Visual Design": ["typography", "layout", "branding", "color theory"],
+    Creativity: ["creative", "portfolio", "concept", "design"],
+    "Print/Digital": ["print", "digital", "banner", "social media graphics"],
+    "Client Work": ["client", "brief", "revision", "deadline"],
+  },
+  "Digital Marketing Executive": {
+    "Social Media Marketing": ["facebook ads", "instagram", "campaign", "social media"],
+    "SEO/SEM": ["seo", "sem", "google ads", "keyword"],
+    Analytics: ["analytics", "google analytics", "insight", "metric"],
+    "Content Creation": ["content", "creative", "canva", "graphic"],
+    Communication: ["communication", "client", "coordination", "presentation"],
+  },
+  "Content Writer": {
+    "Writing Skills": ["writing", "content", "article", "blog", "copywriting"],
+    "SEO Basics": ["seo", "keyword", "ranking", "search engine"],
+    Research: ["research", "fact-check", "editing", "proofreading"],
+    Tools: ["word", "google docs", "grammarly", "wordpress"],
+    "Social Media": ["social media", "caption", "post", "content calendar"],
+  },
+  "Customer Support / Customer Service": {
+    "Customer Communication": ["customer service", "support", "inbox", "customer query", "complaint", "client communication"],
+    "Support Channels & Tools": ["helpdesk", "crm", "live chat", "email support", "zendesk", "intercom", "freshdesk", "social media"],
+    "Issue Resolution & Handling": ["troubleshooting", "resolution", "ticket", "follow-up", "inquiry", "escalation"],
+    "Digital Literacy": ["ms word", "excel", "typing", "google sheets", "fast typing", "crm software"],
+    "Service Reliability & Empathy": ["teamwork", "punctual", "empathy", "dedicated", "reliable", "customer satisfaction", "csat"],
+  },
+  "Virtual Assistant / Data Entry": {
+    "Data Entry": ["data entry", "excel", "spreadsheet", "typing"],
+    Communication: ["email support", "communication", "coordination", "correspondence"],
+    Scheduling: ["calendar", "scheduling", "appointment", "booking"],
+    "Office Tools": ["ms office", "google sheets", "crm", "ms word"],
+    "Attention to Detail": ["accuracy", "detail-oriented", "proofreading", "quality check"],
+  },
+  "Sales & Business Development": {
+    "Sales Skills": ["sales", "negotiation", "deal", "target", "quota"],
+    Communication: ["communication", "persuasion", "client", "presentation"],
+    "CRM Tools": ["crm", "salesforce", "pipeline", "hubspot"],
+    "Market Research": ["market research", "lead generation", "prospecting"],
+    "Relationship Building": ["relationship", "networking", "follow-up", "retention"],
+  },
+  "HR / Admin Executive": {
+    Recruitment: ["recruitment", "hiring", "interview", "sourcing"],
+    Administration: ["admin", "office", "documentation", "filing"],
+    Communication: ["communication", "coordination", "employee relations"],
+    "MS Office": ["excel", "ms word", "powerpoint", "office"],
+    Compliance: ["policy", "compliance", "hr policy", "procedure"],
+  },
+  "Teacher / Tutor": {
+    "Subject Knowledge": ["subject", "curriculum", "syllabus", "academic"],
+    "Teaching & Communication": ["teaching", "communication", "explain", "mentor"],
+    "Lesson Planning": ["lesson plan", "planning", "preparation", "material"],
+    "Student Engagement": ["student", "engagement", "motivate", "classroom"],
+    Assessment: ["assessment", "evaluation", "exam", "grading"],
+  },
+};
+
+// Fallback for a typed-in custom role that isn't in SKILL_MAP — measures transferable
+// signals instead of guessing at tech skills for a non-tech or custom CV.
+export const GENERIC_SKILLS = {
+  Communication: ["communication", "coordination", "presentation", "email", "client"],
+  "Digital Tool Familiarity": ["excel", "ms word", "google sheets", "software", "computer skills", "app"],
+  "Reliability & Initiative": ["led", "managed", "organized", "initiative", "took ownership"],
+  "Relevant Experience": ["experience", "internship", "worked", "assisted", "handled"],
+  "Measurable Impact": ["%", "increased", "reduced", "achieved", "improved"],
 };
 
 export function computeSkillGap(cvText, jobTarget) {
-  const map = SKILL_MAP[jobTarget] || SKILL_MAP["Full-Stack Developer"];
+  const map = SKILL_MAP[jobTarget] || GENERIC_SKILLS;
   const lower = (cvText || "").toLowerCase();
   return Object.entries(map).map(([skill, keywords]) => {
-    const hits = keywords.filter((k) => lower.includes(k)).length;
+    const hits = keywords.filter((k) => wordMatch(lower, k)).length;
     const score = Math.min(100, Math.round((hits / keywords.length) * 100) + (hits > 0 ? 20 : 0));
     return { skill, score: Math.max(score, hits > 0 ? 40 : 10) };
   });
