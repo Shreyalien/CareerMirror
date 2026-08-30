@@ -13,7 +13,7 @@ app.use(express.json({ limit: "2mb" }));
 
 const PORT = process.env.PORT || 5000;
 
-// Smart key detection
+// Smart key detection across all environment variable names
 const rawAnthropic = process.env.ANTHROPIC_API_KEY || "";
 const rawGroq = process.env.GROQ_API_KEY || process.env.GROK_API_KEY || "";
 const rawXai = process.env.XAI_API_KEY || "";
@@ -28,7 +28,7 @@ const PROVIDER = GROQ_KEY ? "groq" : ANTHROPIC_KEY ? "anthropic" : XAI_KEY ? "xa
 // Supported Groq models with graceful fallback
 const GROQ_MODELS = ["qwen/qwen3.8-27b", "openai/gpt-oss-120b", "openai/gpt-oss-20b", "groq/compound"];
 
-// Simple in-memory rate limiter (40 requests / 15 min / IP)
+// Simple in-memory rate limiter (50 requests / 15 min / IP)
 const hits = new Map();
 function rateLimit(req, res, next) {
   const ip = req.ip || req.connection.remoteAddress;
@@ -41,7 +41,7 @@ function rateLimit(req, res, next) {
   }
   entry.count += 1;
   hits.set(ip, entry);
-  if (entry.count > 40) {
+  if (entry.count > 50) {
     return res.status(429).json({ error: "Rate limit reached. Please try again in a few minutes." });
   }
   next();
@@ -51,12 +51,12 @@ const PERSONAS = {
   startup: {
     name: "Startup Recruiter",
     voice:
-      "You are a fast-talking startup recruiter who values hustle, side-projects, ownership, fast execution, and versatility over corporate credentials. You care about what the candidate has actually built and shipped. Casual tone, occasional dry humor, direct and punchy.",
+      "You are a fast-talking startup recruiter who values hustle, side-projects, ownership, fast shipping, and versatility over corporate credentials. You care about what the candidate has actually built and deployed. Casual tone, witty, insightful, direct and punchy.",
   },
   faang: {
     name: "Big Tech Recruiter",
     voice:
-      "You are a sharp technical recruiter at a Tier-1 tech company. You care deeply about system design exposure, scale, architectural rigor, performance optimizations, and precise quantified impact metrics. Tone is sharp, precise, and high-standard.",
+      "You are a sharp technical recruiter at a Tier-1 tech company. You care deeply about system design exposure, scale, architectural rigor, performance optimizations, and precise quantified impact metrics. Tone is sharp, rigorous, precise, and high-standard.",
   },
   mnc: {
     name: "MNC HR Manager",
@@ -66,12 +66,12 @@ const PERSONAS = {
   agency: {
     name: "Design Agency Director",
     voice:
-      "You are a creative director at a world-class design studio. You care about visual taste, storytelling, portfolio polish, typography, and whether the candidate can defend creative decisions. Tone is opinionated, visual, and dramatic.",
+      "You are a creative director at a world-class design studio. You care about visual taste, storytelling, portfolio polish, typography, and whether the candidate can defend creative decisions. Tone is opinionated, visual, dramatic, and craft-obsessed.",
   },
   freelance: {
     name: "Freelance Client",
     voice:
-      "You are a non-technical business owner hiring a specialist for a critical project. You care about reliability signals, clear communication, business ROI, transparency, and trust. Tone is friendly, cautious, and practical.",
+      "You are a non-technical business owner hiring a specialist for a critical project. You care about reliability signals, clear communication, business ROI, transparency, and trust. Tone is friendly, practical, and focused on business value.",
   },
   bank: {
     name: "Bank / Finance HR",
@@ -99,8 +99,8 @@ function buildSystemPrompt(personaKey, mode, jobTarget) {
   const persona = PERSONAS[personaKey] || PERSONAS.startup;
   const modeInstruction =
     mode === "roast"
-      ? `MODE: ROAST. Be witty, sarcastic, borderline savage — think high-intelligence comedy roast of their specific CV content. Never attack personal attributes; roast the resume claims, buzzwords, vagueness, or formatting flaws. No corporate sugarcoating, no emojis, no boilerplate.`
-      : `MODE: COACH. Be warm, structured, highly tactical, and actionable. Provide concrete, high-leverage recommendations tailored specifically to what is in their CV. Zero emojis, zero sarcasm.`;
+      ? `MODE: ROAST. Be witty, sarcastic, sharp, and brutally honest — like a high-IQ comedy roast of the candidate's exact CV content. Point out buzzwords, vague lines, or missing evidence with sharp humor. Never attack personal attributes; only critique the resume itself.`
+      : `MODE: COACH. Be warm, highly structured, tactical, and deeply encouraging. Give practical, high-leverage steps and clear breakdowns.`;
 
   return `${persona.voice}
 
@@ -108,12 +108,12 @@ ${modeInstruction}
 
 TARGET ROLE CANDIDATE IS PURSUING: "${jobTarget || "General Candidate"}".
 
-CRITICAL EVALUATION RULES:
-1. ALWAYS inspect and quote/reference the candidate's actual projects, job titles, metrics, or listed skills from their CV text.
-2. NEVER give generic, copy-paste, or cookie-cutter advice. Every answer MUST be personalized to this specific candidate.
-3. Speak directly to the candidate as "you".
-4. Keep the answer concise, punchy, and under 180 words unless the user explicitly asks for an in-depth breakdown.
-5. If the user asks a specific question (e.g. "What's my weakest skill?", "Why wouldn't you hire me?", "How do I fix my experience bullet?"), answer THAT EXACT question directly and decisively.`;
+CRITICAL EVALUATION & ANSWERING GUIDELINES:
+1. ALWAYS inspect and quote/reference the candidate's actual projects, job titles, metrics, tools, and bullet points from their CV text.
+2. NEVER give generic, repetitive, or one-size-fits-all answers. Give a deeply tailored, comprehensive, and helpful answer.
+3. Provide rich, detailed explanations. Elaborate on WHY something works or fails, and give specific concrete examples (e.g. rewrite examples, specific tools to learn, numbers to add).
+4. Speak directly to the candidate as "you".
+5. Address the user's specific question directly, thoroughly, and with substance. Do NOT artificially cut your answer short.`;
 }
 
 async function callGroq(system, messages) {
@@ -128,8 +128,8 @@ async function callGroq(system, messages) {
         },
         body: JSON.stringify({
           model,
-          max_tokens: 550,
-          temperature: 0.7,
+          max_tokens: 900,
+          temperature: 0.75,
           messages: [{ role: "system", content: system }, ...messages],
         }),
       });
@@ -160,7 +160,7 @@ async function callClaude(system, messages) {
     },
     body: JSON.stringify({
       model: "claude-sonnet-5",
-      max_tokens: 550,
+      max_tokens: 900,
       system,
       messages,
     }),
@@ -183,7 +183,7 @@ async function callXai(system, messages) {
     },
     body: JSON.stringify({
       model: "grok-beta",
-      max_tokens: 550,
+      max_tokens: 900,
       messages: [{ role: "system", content: system }, ...messages],
     }),
   });
@@ -215,8 +215,8 @@ app.post("/api/analyze", rateLimit, async (req, res) => {
       try {
         const system = buildSystemPrompt(persona, mode, jobTarget);
         const userPrompt = mode === "roast"
-          ? `Here is my complete CV:\n\n${cvText.slice(0, 6000)}\n\nGive me your initial roast assessment for the ${jobTarget || "specified"} role. Structure as 3 short numbered call-outs followed by one line starting with "Verdict:". Reference specific items from my text.`
-          : `Here is my complete CV:\n\n${cvText.slice(0, 6000)}\n\nGive me your initial coach review for the ${jobTarget || "specified"} role. Structure as 3 concrete numbered action steps followed by one line starting with "Target Guidance:". Reference specific items from my text.`;
+          ? `Here is my complete CV:\n\n${cvText.slice(0, 6000)}\n\nGive me your initial roast assessment for the ${jobTarget || "specified"} role. Structure as 3 detailed numbered call-outs followed by a sharp verdict line starting with "Verdict:". Reference specific items, technologies, and phrasing from my CV.`
+          : `Here is my complete CV:\n\n${cvText.slice(0, 6000)}\n\nGive me your initial coach review for the ${jobTarget || "specified"} role. Structure as 3 actionable numbered steps followed by a summary line starting with "Target Guidance:". Reference specific items, technologies, and phrasing from my CV.`;
 
         const messages = [{ role: "user", content: userPrompt }];
         reply = await callAI(system, messages);
@@ -255,9 +255,9 @@ app.post("/api/chat", rateLimit, async (req, res) => {
         const messages = [
           {
             role: "user",
-            content: `Here is my complete CV:\n\n${(cvText || "").slice(0, 6000)}\n\nTarget Role: ${jobTarget}. Note my exact CV projects and metrics.`,
+            content: `Here is my complete CV:\n\n${(cvText || "").slice(0, 6000)}\n\nTarget Role: ${jobTarget}. Note my exact CV projects, tools, metrics, and bullet points.`,
           },
-          { role: "assistant", content: `I have reviewed your CV through my lens as ${PERSONAS[persona]?.name || "a recruiter"}. What would you like to know?` },
+          { role: "assistant", content: `I have thoroughly reviewed your CV through my lens as ${PERSONAS[persona]?.name || "a recruiter"}. What would you like to know?` },
           ...(Array.isArray(history) ? history.slice(-6) : []),
           { role: "user", content: question },
         ];
