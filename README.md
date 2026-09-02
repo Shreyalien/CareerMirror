@@ -1,134 +1,149 @@
-# CareerMirror
+<div align="center">
 
-CV analysis platform that gives you feedback the way an actual recruiter would — not a generic ATS keyword scanner. Upload a resume or paste the text, pick a persona, choose your tone, and get back skill-fit, career-fit, and CV health scores with a full breakdown.
+# 🪞 CareerMirror
 
-[![React](https://img.shields.io/badge/React-18-2563eb?style=flat-square)](https://react.dev)
-[![Node.js](https://img.shields.io/badge/Node.js-Express-2563eb?style=flat-square)](https://expressjs.com)
-[![Tailwind](https://img.shields.io/badge/Tailwind-CSS-2563eb?style=flat-square)](https://tailwindcss.com)
-[![Author](https://img.shields.io/badge/Author-Shreyalien%20(Shreya)-8B7BFF?style=flat-square&logo=github)](https://github.com/Shreyalien)
+### AI Recruiter CV Analysis, Real-Time ATS Checker & Career Fit Platform
 
-### [Live Demo](https://careermirror-0rwk.onrender.com/)
+<br/>
+
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-careermirror--0rwk.onrender.com-00C7B7?style=for-the-badge&logo=render&logoColor=white)](https://careermirror-0rwk.onrender.com/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://expressjs.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-e11d48?style=for-the-badge)](LICENSE.txt)
+
+<br/>
+
+> **A full-stack, intelligent CV analysis platform that delivers feedback the way real recruiters evaluate candidates — not generic keyword scanning. Upload or paste your resume, select from 9 AI recruiter personas, choose your tone (Coach vs. Roast), and unlock comprehensive skill-fit, career-fit, and ATS health scoring with actionable 1-click fixes.**
+
+<br/>
+
+<p align="center">
+  <a href="https://careermirror-0rwk.onrender.com/" target="_blank">
+    <img src="banner.png" alt="CareerMirror Hero Showcase" width="100%" style="border-radius: 16px; box-shadow: 0 12px 36px rgba(0,0,0,0.4);" />
+  </a>
+</p>
+
+<br/>
+
+[🌐 Live Application](https://careermirror-0rwk.onrender.com/) · [✨ Features](#-features) · [🏗️ Architecture & Tech Stack](#%EF%B8%8F-architecture--tech-stack) · [🚀 Getting Started](#-getting-started) · [🛡️ Security](#%EF%B8%8F-security--privacy) · [📄 License](#-license)
+
+</div>
 
 ---
 
-## Author & Credits
+## 📖 Overview
 
-Created and maintained by **[Shreyalien (Shreya)](https://github.com/Shreyalien)**.
+Most automated resume checkers stop at superficial keyword matching. **CareerMirror** goes further — evaluating resume structure, clarity, impact metrics, and how authentically your career experience maps to target industry expectations.
+
+Feedback is dynamically shaped by the persona and tone you choose:
+
+| Review Mode | What You Get |
+| :--- | :--- |
+| **🎯 Coach** | Constructive, structured mentorship — highlighting strengths, addressing weak points, and providing step-by-step improvements. |
+| **🔥 Roast** | Unfiltered, high-impact critique — mimicking what an elite recruiter actually thinks during a rapid 6-second resume skim. |
+
+🔗 **Live Deployment:** [https://careermirror-0rwk.onrender.com/](https://careermirror-0rwk.onrender.com/)
 
 ---
 
-## Overview
+## ✨ Features
 
-Most resume tools stop at keyword matching. CareerMirror goes further — it evaluates structure, clarity, and how well your experience actually maps to a target role, then delivers that as feedback shaped by a persona and a tone you choose.
+- **9 AI Recruiter Personas** — Experience reviews from diverse industry hiring standards (e.g., *MNC HR Manager, Startup Founder, Tech Lead, Design Agency Director, Finance Recruiter*).
+- **Real-Time ATS Scoring Engine** — Granular, weighted diagnostics across *Impact & Metrics, Power Action Verbs, ATS Formatting, and Role-Relevant Keywords*.
+- **Split-Pane Live CV Editor & 1-Click Fixer** — Edit directly in the browser, upgrade passive phrases to active power verbs, purge overused buzzwords, and standardize section headers.
+- **Dream Job Gap Diagnosis & ATS Booster** — Compare your CV against target job titles, discover missing technical requirements, and receive project blueprint suggestions.
+- **Role Navigator & Where to Apply** — Curated job title matching with market salary ranges and 1-click discovery links across LinkedIn, Wellfound, Indeed, and RemoteOK.
+- **Dual-Layer Parsing Architecture** — Instant client-side document rendering (PDF.js / Mammoth) paired with server-side extraction (pdf-parse) as the verified source of truth.
+- **Interactive Visual Breakdown** — Score radar charts and progress distributions powered by Recharts.
+- **Offline Local Heuristics Fallback** — Runs seamlessly with or without external AI API keys using a deterministic local scoring engine (`heuristics.js`).
 
-Two modes:
+---
 
-| Mode | What you get |
-|---|---|
-| **Coach** | Constructive, structured feedback — what's working, what to fix, and how |
-| **Roast** | Blunt, no-cushion feedback — closer to what a recruiter actually thinks after a 6-second skim |
-
-## Features
-
-- **Persona-based review** — feedback framed from the perspective of a specific type of recruiter/hiring manager
-- **Real-Time ATS Score Checker** — weighted scoring across Impact, Action Verbs, ATS Structure, and Keyword coverage
-- **Split-Pane Live CV Editor & 1-Click Auto-Fixer** — edit live, upgrade passive phrases to power verbs, purge buzzwords, and standardize headers
-- **Dream Job Skill Gap Suggestion Box & ATS Booster** — custom dream job benchmarks, missing skills diagnosis, project blueprints, and 1-click CV skill injection
-- **Job Matches & Where to Apply Navigator** — matching role titles with market salaries and 1-click direct search links across LinkedIn, Wellfound, Indeed, and RemoteOK
-- **Skill-fit scoring** — compares extracted skills against a target role's expected skill set
-- **Career-fit scoring** — flags inconsistent trajectory, unexplained gaps, mismatched seniority signals
-- **CV health score** — formatting, length, structure, and clarity checks independent of role
-- **Dual input** — upload a PDF/DOCX directly or paste raw text
-- **Visual breakdown** — score charts and category breakdowns via Recharts, not just a wall of text
-- **Works with or without an API key** — falls back to a deterministic local scoring engine when no key is set, so the app is never fully dependent on an external service
-
-## Tech stack
-
-| Layer | Tools |
-|---|---|
-| Frontend | React 18, Vite, Tailwind CSS, Framer Motion, Recharts, Lucide Icons |
-| Backend | Node.js, Express |
-| CV parsing | PDF.js / Mammoth (client-side preview), pdf-parse (server-side, source of truth) |
-| Analysis engine | Claude API (when configured) with a rule-based fallback (`heuristics.js`) |
-
-The parsing is intentionally duplicated — client-side gives an instant preview, server-side is what actually gets analyzed, so the two never need to trust each other's output.
-
-## Project structure
+## 🏗️ Architecture & Tech Stack
 
 ```
 careermirror/
 ├── frontend/
 │   ├── src/
-│   │   ├── components/
-│   │   ├── data/
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   └── public/
+│   │   ├── components/      # UI widgets, split-pane editor, charts & persona selectors
+│   │   ├── data/            # Static presets, persona definitions & benchmark roles
+│   │   ├── App.jsx          # Main application orchestrator
+│   │   └── main.jsx         # React DOM root entry
+│   ├── public/              # Static branding and web assets
+│   └── package.json         # Frontend dependencies (React 18, Vite, Tailwind CSS)
+│
 ├── backend/
-│   ├── server.js       Express app + routes
-│   ├── heuristics.js    fallback scoring engine
-│   └── skillsMap.js     skill taxonomy used by the scoring logic
-└── .gitignore
+│   ├── server.js            # Express API server & parsing endpoints
+│   ├── heuristics.js        # Deterministic local scoring & rule-based engine
+│   ├── skillsMap.js         # Comprehensive tech & domain skill taxonomy
+│   └── package.json         # Backend dependencies (Express, CORS, pdf-parse)
+│
+├── banner.png               # High-resolution hero showcase banner
+├── LICENSE.txt              # Proprietary license terms
+└── README.md                # Project documentation
 ```
 
-## Running locally
+### Technology Layer
 
-### Backend
+| Component | Stack |
+| :--- | :--- |
+| **Frontend** | React 18, Vite, Tailwind CSS, Framer Motion, Recharts, Lucide Icons |
+| **Backend** | Node.js, Express.js REST API |
+| **Document Parsing** | Client: PDF.js & Mammoth · Server: `pdf-parse` (source of truth) |
+| **Scoring Engine** | AI Model Integration + Local Deterministic Fallback (`heuristics.js`) |
 
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18.x or higher)
+- [npm](https://www.npmjs.com/)
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Shreyalien/CareerMirror.git
+cd CareerMirror
+```
+
+### 2. Backend Setup
 ```bash
 cd backend
 npm install
-cp .env.example .env
 npm start
 ```
+*The backend API will run on `http://localhost:5000`.*
 
-`.env`:
-
-```env
-ANTHROPIC_API_KEY=   # optional — leave empty to run on the local engine
-PORT=5000
-```
-
-Confirm it's up: `http://localhost:5000/api/health`
-
-### Frontend
-
+### 3. Frontend Setup
 ```bash
-cd frontend
+cd ../frontend
 npm install
 npm run dev
 ```
+*Open `http://localhost:5173` in your browser to start using CareerMirror.*
 
-Serves on `http://localhost:5173`, pointing at the backend via:
+---
 
-```env
-VITE_API_URL=http://localhost:5000
-```
+## 🛡️ Security & Privacy
 
-## Deployment
+- **Server-Side API Key Protection**: Third-party API keys are strictly evaluated server-side and never exposed to client-side bundles.
+- **Ephemeral Document Processing**: Uploaded resume files are parsed in memory and are not permanently stored on disk.
+- **Standalone Heuristics Mode**: If no API key is supplied, the local deterministic heuristics engine ensures 100% feature availability without external network dependencies.
 
-Two Render services from the same repo.
+---
 
-**Backend — Web Service**
-- Root: `backend`
-- Build: `npm install`
-- Start: `npm start`
-- Env: `ANTHROPIC_API_KEY`
+## 👩‍💻 Author & Maintainer
 
-**Frontend — Static Site**
-- Root: `frontend`
-- Build: `npm install && npm run build`
-- Publish dir: `dist`
-- Env: `VITE_API_URL` → backend's deployed URL
+Created with ❤️ by:
 
-Redeploy the frontend after changing `VITE_API_URL` — Vite bakes it in at build time, not runtime.
+**Shreya**
+- GitHub: [@Shreyalien](https://github.com/Shreyalien)
+- Project: [CareerMirror](https://github.com/Shreyalien/CareerMirror)
+- Live: [careermirror-0rwk.onrender.com](https://careermirror-0rwk.onrender.com/)
 
-## Security notes
+---
 
-- `ANTHROPIC_API_KEY` is read server-side only and never exposed to the frontend build.
-- `VITE_API_URL` is safe to expose publicly — it's a routing address, not a credential.
-- No key configured, no problem — the local heuristics engine keeps the app fully functional.
+## 📄 License
 
-## License
-
-All rights reserved. This code is shared for viewing purposes only — not licensed for reuse, modification, or redistribution.
+All rights reserved. This codebase and associated brand assets are shared for demonstration and portfolio evaluation purposes only. No unauthorized reproduction, sublicensing, or commercial redistribution is permitted.
